@@ -1,0 +1,69 @@
+---
+title: "Rmarkdown Demo"
+author: "Nathaniel Grimes"
+date: "2023-12-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Hashtags control headers
+
+### More hastags lower the header level
+
+#### Small headers
+
+We can type normal paragraphs like we do in any word processor. Admittedly the grammar and spell check is not as robust by default. Make sure to separate paragraphs by a line drop with the enter/return key
+
+## Easily integrate code with Rmarkdown
+
+```{r}
+# code chunks work just like individual R scripts
+# When knitted, all code chunks put add together
+library(tidyverse)
+
+mpg<-mtcars |> 
+  group_by(cyl) |> 
+  summarize(mean_mpg=mean(mpg))
+
+mpg
+
+aov_out<-aov(mpg~cyl,data=mtcars) |> 
+  summary()
+
+fval=aov_out[[1]]$`F value`[1]
+pval=aov_out[[1]]$`Pr(>F)`[1]
+```
+
+We can type results directly into text output with inline code.
+
+There is a significant difference in mean miles per gallon between the number of cylinders in a car (F-value=`r round(fval,3)`,p-value= `r signif(pval,3)`).
+
+## Embed figures into the output directly
+
+```{r}
+
+ggplot(mtcars, aes(x = wt, y = mpg, size = disp)) +
+  geom_point()+
+  theme_bw()
+```
+
+## Style edits
+
+*Italics works with asterisk*
+
+**Bold works with double asterisks**
+
+1.  Make lists
+2.  Numbered
+    a.   Sub bullets in option with two tabs
+
+-   Bulleted lists
+-   Work just with dots
+    - Sub bullets
+
+[Add links to websites](https://github.com/oharac)
+
+![Create Captions for images: Wow! So Cool](https://media.giphy.com/media/N8uutOwabFDcmsuPkp/giphy.gif)
