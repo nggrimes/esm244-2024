@@ -1,0 +1,183 @@
+---
+title: "Assignment 1 Key"
+author: "Nathaniel Grimes"
+format: 
+  html:
+    code-fold: true
+execute: 
+  echo: true
+  message: false
+  warning: false
+editor: visual
+---
+
+```{r}
+
+#Package Load
+
+library(tidyverse)
+library(lubridate)
+library(patchwork)
+```
+
+## Task 1 Data Summary
+
+We are tasked to present amphibian abundance data from the Sierra Lakes Inventory Project.
+
+
+```{r dataimport}
+amphibian_raw<-readxl::read_excel(here::here("data","assignment_1","sierra_amphibians.xlsx"))
+```
+
+```{r tidytask}
+ylfrog<-amphibian_raw %>% 
+  filter(amphibian_life_stage!="EggMass" & amphibian_species=="RAMU") %>% 
+  mutate(survey_date=as.Date(survey_date)) %>% 
+  mutate(year=year(survey_date)) %>% 
+  group_by(year,amphibian_life_stage) %>% 
+  summarize(total=sum(amphibian_number,na.rm = TRUE))
+
+p1<-ggplot(data=ylfrog,aes(x=amphibian_life_stage,y=total))+
+  geom_col(aes(fill=as.factor(year)),position="dodge")+
+  scale_fill_viridis_d(name="Year")+
+  xlab("Life Stage")+
+  ylab("")+
+  theme_classic()
+
+```
+
+
+
+
+```{r tidyadjust}
+ylfrogt2<-amphibian_raw %>% 
+    filter(amphibian_life_stage %in% c("Adult","SubAdult") & amphibian_species=="RAMU") %>% 
+  group_by(lake_id) %>% 
+  summarize(total=sum(amphibian_number,na.rm=TRUE)) %>% 
+  arrange(desc(total)) %>% 
+  head(n=5) %>% 
+  mutate(lake_id=sub("^","Lake ",lake_id))
+
+p2<-ggplot(ylfrogt2,aes(x=fct_reorder(lake_id,total),y=total,fill=factor(lake_id)))+
+  geom_col(fill="#21918c")+
+  theme_classic()+
+  xlab("")+
+  ylab("")+
+  theme(legend.position = "none")
+```
+
+```{r}
+#| label: fig-combo
+#| fig-cap: ""
+#| 
+patch<-p1/p2
+
+wrap_elements(patch) +
+  labs(tag = "Observed Count") +
+  theme(
+    plot.tag = element_text(size = rel(1), angle = 90),
+    plot.tag.position = "left"
+  )
+```
+
+## Extra fun ways of visualizing the data
+
+
+
+```{r}
+                    p3<-ggplot(data=ylfrog,aes(x=as.factor(year),y=total))+
+  geom_col(aes(fill=amphibian_life_stage),position="dodge")+
+  facet_wrap(~amphibian_life_stage,scales = "free")+
+  scale_fill_viridis_d()+
+  xlab("Life Stage")+
+  ylab("")+
+  theme_classic()+
+                       theme(legend.position = 'none')
+
+patch_2<-p3/p2
+
+wrap_elements(patch_2) +
+  labs(tag = "Observed Count") +
+  theme(
+    plot.tag = element_text(size = rel(1), angle = 90),
+    plot.tag.position = "left"
+  )
+```
+Even wilder way would be to add an inset
+
+```{r}
+p4<-ylfrog |> 
+    filter(amphibian_life_stage %in% c("Adult","SubAdult")) |> 
+    ggplot(aes(x=amphibian_life_stage,y=total))+
+  geom_col(aes(fill=as.factor(year)),position="dodge")+
+  scale_fill_viridis_d(name="Year")+
+  xlab("")+
+  ylab("")+
+  theme_classic()+
+  theme(legend.position = 'none')+
+  theme(panel.border=element_rect(colour="#21918c",fill=NA,size=0.5))
+  
+
+p1+inset_element(p4,left=0,bottom=0.2,right=.75,top=1)
+```
+## Task 2 Williamette Fish Passage
+
+```{r}
+# data and package load
+
+library(tsibble)
+library(feasts)
+fish_raw<-read_csv(here::here("data","assignment_1","willamette_fish_passage.csv"))
+```
+
+
+::: {.panel-tabset}
+
+
+## OG Time Series
+
+```{r}
+fish<-fish_raw %>% 
+  janitor::clean_names() %>% 
+  mutate(date=lubridate::mdy(date)) %>% 
+  as_tsibble(key=NULL,index=date) %>% 
+  pivot_longer(!c(project,date),names_to = "species",values_to = "fish_ob") %>% 
+  filter(species %in% c("coho","jack_coho","steelhead")) %>% 
+  replace_na(list(fish_ob=0))
+  
+
+ggplot(data=fish,aes(x=date,y=fish_ob))+
+  geom_line(aes(color=species))+
+  scale_color_manual(values=c("blue","red","green"))
+```
+
+## Season plots
+
+```{r}
+fish_season<-fish %>% 
+  index_by(yr_mo=~yearmonth(.)) %>% 
+  group_by(species) %>% 
+  summarize(monthly_count=sum(fish_ob))
+
+
+# fish_season %>%
+#   ggplot(aes(x=year(yr_mo),y=monthly_count))+
+#   geom_line(aes(color=species))+
+#   facet_wrap(~month(yr_mo))
+
+fish_season %>% gg_season(y=monthly_count)
+```
+
+## Annual counts
+
+```{r}
+fish_count<-fish %>% 
+  index_by(yr=~year(.)) %>% 
+  group_by(species) %>% 
+  summarize(annual_count=sum(fish_ob))
+
+ggplot(data=fish_count)+
+  geom_line(aes(x=yr,y=annual_count,color=species))
+```
+
+:::

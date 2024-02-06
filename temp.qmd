@@ -1,0 +1,98 @@
+---
+title: "Iris K-Means Clustering"
+format: 
+  html:
+    page-layout: custom
+server: shiny
+---
+
+```{r}
+#| panel: sidebar
+vars <- setdiff(names(iris), "Species")
+selectInput('xcol', 'X Variable', vars)
+selectInput('ycol', 'Y Variable', vars, selected = vars[[2]])
+numericInput('clusters', 'Cluster count', 3, min = 1, max = 9)
+```
+
+```{r}
+#| panel: fill
+plotOutput('plot1')
+```
+
+```{r}
+#| context: server
+selectedData <- reactive({
+    iris[, c(input$xcol, input$ycol)]
+  })
+
+clusters <- reactive({
+  kmeans(selectedData(), input$clusters)
+})
+
+output$plot1 <- renderPlot({
+  palette(c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3",
+    "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999"))
+
+  par(mar = c(5.1, 4.1, 0, 1))
+  plot(selectedData(),
+       col = clusters()$cluster,
+       pch = 20, cex = 3)
+  points(clusters()$centers, pch = 4, cex = 4, lwd = 4)
+})
+```
+
+
+```{r}
+#| panel: sidebar
+#| eval: false
+
+ sliderInput("bm",
+                label="Asymptotic Body Mass (b1)",
+                min=0,max=2000,
+                value=500)
+      sliderInput("ig",
+                label="Instantaneous growth rate (b2)",
+                min=0,max=2,
+                value=1,
+                step=.2)
+      sliderInput("age_in",
+                label="Age inflection (b3)",
+                min=0,max=10,
+                value=5)
+```
+
+```{r}
+#| panel: fill
+#| eval: false
+plotOutput('gompetz')
+
+```
+
+```{r}
+#| context: server
+#| eval: false
+library(lterdatasampler)
+library(shiny)
+x<-seq(from=0,to=20,length.out=100)
+dft<-reactive({
+    #make a dataframe that changes
+    data.frame(age=x,weight=gompertz(input$bm,input$ig,input$age_in,x))
+  })
+
+  #Graph said dataframe using bison data on top of our model dataframe that changes with inputs
+
+  output$gompertz=renderPlot({
+    knz_bison %>% 
+    mutate(animal_age = rec_year - animal_yob) %>% 
+    filter(animal_sex=="F") %>% 
+    ggplot()+
+      geom_point(aes(x=animal_age,y=animal_weight),size=2.5,alpha=0.2,color='purple')+
+      theme_minimal()+
+      xlab('Age')+
+      ylab('Weight')+
+      ggtitle("Female Bison from Konza Prairie")+
+      theme(axis.title = element_text(size=26),axis.text = element_text(size=20))+
+      theme(plot.title = element_text(size=28,hjust=0.5))+
+    geom_line(data=dft(),aes(x=age,y=weight),color="#79A540",size=2)
+  })
+```

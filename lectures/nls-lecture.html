@@ -11,7 +11,7 @@
   <meta name="generator" content="quarto-1.3.433">
 
   <meta name="author" content="Nathaniel Grimes">
-  <meta name="dcterms.date" content="2024-01-23">
+  <meta name="dcterms.date" content="2024-02-01">
   <title>Non-linear Least Squares</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -387,6 +387,9 @@
       margin-right: 0; 
     }
   </style>
+  
+  <script src="nls-lecture_files/libs/kePrint-0.0.1/kePrint.js"></script>
+  <link href="nls-lecture_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -407,16 +410,7 @@ Nathaniel Grimes
     </div>
 </div>
 
-  <p class="date">2024-01-23</p>
-</section>
-<section id="presentation-title" class="slide level2 textcenter">
-<h2>Presentation title</h2>
-<p><img data-src="img/ucsb_logo.png" class="absolute" style="top: 9px; left: 0px; width: 400px; height: 20px; "></p>
-<h3 id="presentation-subtitle">Presentation subtitle</h3>
-<p><br></p>
-</section>
-<section id="authorship-name" class="slide level2 gold">
-<h2>### Authorship name</h2>
+  <p class="date">2024-02-01</p>
 </section>
 <section id="quick-aside" class="slide level2">
 <h2>Quick Aside</h2>
@@ -443,29 +437,34 @@ Nathaniel Grimes
 <h2>Packages to follow along with</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"lter/lterdatasampler"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">#remotes::install_github("lter/lterdatasampler")</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="fu">library</span>(lterdatasampler)</span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="fu">library</span>(knitr)</span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="fu">library</span>(broom)</span>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="fu">library</span>(investr)</span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="fu">library</span>(shiny)</span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="fu">library</span>(shinyWidgets)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="fu">library</span>(kableExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section>
-<section id="what-is-non-linear-least-squares" class="title-slide slide level1 center" data-background-color="#003660">
-<h1>What is Non-linear Least Squares?</h1>
-
+<section id="what-is-non-linear-least-squares" class="slide level2" data-background-color="#003660">
+<h2>What is Non-linear Least Squares?</h2>
 </section>
 <section id="remember-what-ordinary-least-squares-does-first" class="slide level2">
 <h2>Remember what Ordinary Least Squares does first</h2>
+<div class="absolute" style="top: 0px; left: 100%; ">
+<div class="sectionhead">
+<p>What is NLS?</p>
+<p><span style="opacity:0.25">Why NLS?</span></p>
+<p><br></p>
+<p><span style="opacity:0.25">NLS in R</span></p>
+<p><span style="opacity:0.25">Maximization</span></p>
+</div>
+</div>
 <p>The Fundamental Objective of OLS</p>
 <div class="columns">
 <div class="column" style="width:45%;">
 <div class="cell" data-fig.dim="[6,6]">
 <div class="cell-output-display">
-<p><img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-2-1.png" width="576"></p>
+<p><img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-3-1.png" width="576"></p>
 </div>
 </div>
 </div><div class="column" style="width:55%;">
@@ -491,7 +490,7 @@ Nathaniel Grimes
 <div class="column" style="width:45%;">
 <div class="cell" data-fig.dim="[6,6]">
 <div class="cell-output-display">
-<p><img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-3-1.png" width="576"></p>
+<p><img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-4-1.png" width="576"></p>
 </div>
 </div>
 </div><div class="column" style="width:55%;">
@@ -503,25 +502,24 @@ Nathaniel Grimes
 </div>
 </div>
 </section>
-<section id="ols-is-simple-and-powerful-but-has-limitations" class="slide level2">
-<h2>OLS is simple and powerful, but has limitations</h2>
+<section id="ols-is-simple-and-powerful" class="slide level2">
+<h2>OLS is simple and powerful</h2>
+<div>
+<p><strong>What are some limitations of OLS?</strong></p>
 <ul>
-<li><p>Linear relationship between predictor (y) and variables (x)</p></li>
-<li><p>Last week we started branching away from linear models with logistic regressions</p></li>
-<li><p>But the link functions typically still maintain a linear form</p></li>
+<li class="fragment"><p>Linear relationship between predictor (y) and variables (x)</p></li>
+<li class="fragment"><p>Multicollinearity</p></li>
 </ul>
-<p><span class="math display">\[
-\ln(\frac{p}{1-p})=\beta_0+\beta_1x_1+\beta_2x_2+...\beta_nx_n
-\]</span></p>
+</div>
 </section>
-<section id="but-what-if-we-get-something-like-this" class="slide level2">
-<h2>But what if we get something like this?</h2>
+<section id="what-if-we-get-something-like-this" class="slide level2">
+<h2>What if we get something like this?</h2>
 
-<img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-4-1.png" width="1152" class="r-stretch quarto-figure-center"></section>
+<img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-5-1.png" width="1152" class="r-stretch quarto-figure-center"></section>
 <section id="or-this" class="slide level2">
 <h2>Or this?</h2>
-
-<img data-src="img/refractivity.PNG" class="r-stretch"></section>
+<p><img data-src="img/refractivity.PNG">{width=“90%,height=90%,fig-align=”center”}</p>
+</section>
 <section id="in-specific-applications-accuracy-greatly-matters" class="slide level2">
 <h2>In specific applications, accuracy greatly matters!</h2>
 
@@ -562,6 +560,11 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <p><span class="math display">\[
 |\frac{\overbrace{S^k}^{\text{Previous squared errror}}-\overbrace{S^{k+1}}^{\text{Updated squared error}}}{S^k}|&lt;0.0001
 \]</span></p>
+</section>
+<section id="you-have-already-used-these-algorithms-before" class="slide level2">
+<h2>You have already used these algorithms before</h2>
+
+<img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-6-1.png" width="960" class="r-stretch quarto-figure-center"><p>fit.variogram uses a Levenberg-Marquardt to find the nugget, sill, and range</p>
 </section>
 <section id="sec-algo" class="slide level2">
 <h2>Demonstration of Gauss-Newton Algorithm</h2>
@@ -615,7 +618,7 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 </div>
 <p>Requires good initial guesses</p>
 <ul>
-<li>Comes from algorithms <span class="small-text"><a href="@sec-algo">Click back to slide</a></span></li>
+<li>Comes from algorithms <a href="@sec-algo">Click back to slide</a></li>
 </ul>
 </div>
 </div>
@@ -624,10 +627,10 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <h2>Know when to use NLS or another option</h2>
 
 <img data-src="img/vtrpe_run.PNG" style="width:55.0%" class="r-stretch quarto-figure-center"><ul>
-<li><p>In this research we ended up using Genetic Algorithms instead as they provide global solutions without having to guess</p></li>
-<li><p>Operationally, the Navy doesn’t have time to guess</p></li>
+<li><p><span class="small-text">In this research we ended up using Genetic Algorithms instead as they provide global solutions without having to guess</span></p></li>
+<li><p><span class="small-text">Operationally, the Navy doesn’t have time to guess</span></p></li>
 </ul>
-</section></section>
+</section>
 <section>
 <section id="using-nls-in-r" class="title-slide slide level1 center" data-background-color="#003660">
 <h1>Using NLS in R</h1>
@@ -709,54 +712,10 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 </section>
 <section id="interactive-applied-guesses" class="slide level2">
 <h2>Interactive applied guesses</h2>
-<div class="layout-sidebar layout-sidebar-left">
-<div class="cell panel-sidebar">
-<div class="cell-output-display">
-<div class="form-group shiny-input-container">
-<label class="control-label" id="bm-label" for="bm">Asymptotic Body Mass (b1)</label>
-<input class="js-range-slider" id="bm" data-skin="shiny" data-min="0" data-max="2000" data-from="500" data-step="1" data-grid="true" data-grid-num="10" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number">
-</div>
-</div>
-<div class="cell-output-display">
-<div class="form-group shiny-input-container">
-<label class="control-label" id="ig-label" for="ig">Instantaneous growth rate (b2)</label>
-<input class="js-range-slider" id="ig" data-skin="shiny" data-min="0" data-max="2" data-from="1" data-step="0.2" data-grid="true" data-grid-num="10" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number">
-</div>
-</div>
-<div class="cell-output-display">
-<div class="form-group shiny-input-container">
-<label class="control-label" id="age_in-label" for="age_in">Age inflection (b3)</label>
-<input class="js-range-slider" id="age_in" data-skin="shiny" data-min="0" data-max="10" data-from="5" data-step="1" data-grid="true" data-grid-num="10" data-grid-snap="false" data-prettify-separator="," data-prettify-enabled="true" data-keyboard="true" data-data-type="number">
-</div>
-</div>
-</div>
-<div class="cell panel-fill">
-<div class="cell-output-display">
-<div class="shiny-plot-output html-fill-item" id="gompetz" style="width:100%;height:400px;"></div>
-</div>
-</div>
-</div>
-</section>
-<section id="applied-guessing" class="slide level2">
-<h2>Applied guessing</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p>How we could use step 2 and 3 in this case?</p>
-<p>Asymptotic body mass <span class="math inline">\(b1\)</span> implies a max body length we could take the biggest observed female or generally look at the graph</p>
-<p>Age inflection point <span class="math inline">\(b3\)</span> is where the curve starts bending</p>
-<p>Instantaneous growth-rate <span class="math inline">\(b2\)</span> is kind of weird, but you could manipulate a set Gompertz model to see how it changes the shape and try to match it.</p>
-</div><div class="column" style="width:50%;">
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="nls-lecture_files/figure-revealjs/combeinplot-1.png" style="height:50.0%" width="960"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-</div>
+<iframe src="https://nggrimes.shinyapps.io/bison_app/" height="1200" width="1000">
+</iframe>
+<p><br></p>
+<p><span class="small-text">Link to static slides <a href="#/sec-model">Section&nbsp;1.15</a></span></p>
 </section>
 <section id="apply-guesses" class="slide level2">
 <h2>Apply guesses</h2>
@@ -869,7 +828,7 @@ font-size: 75%;
 <section id="how-well-does-the-model-predict" class="slide level2">
 <h2>How well does the model predict?</h2>
 
-<img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch quarto-figure-center"></section>
+<img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-10-1.png" width="960" class="r-stretch quarto-figure-center"></section>
 <section id="model-results-indicate-the-lowest-possible-sum-of-squared-error" class="slide level2">
 <h2>Model results indicate the lowest possible sum of squared error</h2>
 <div class="cell">
@@ -939,72 +898,65 @@ font-size: 75%;
 </div>
 <p>Model fits so well, the confidence intervals don’t even show on plot.</p>
 </div>
-<p>
-<script type="application/shiny-prerendered" data-context="server">
-library(lterdatasampler)
-x<-seq(from=0,to=20,length.out=100)
-dft<-reactive({
-    #make a dataframe that changes
-    data.frame(age=x,weight=gompertz(input$bm,input$ig,input$age_in,x))
-  })
-
-  #Graph said dataframe using bison data on top of our model dataframe that changes with inputs
-
-  output$gompertz=renderPlot({
-    knz_bison %>% 
-    mutate(animal_age = rec_year - animal_yob) %>% 
-    filter(animal_sex=="F") %>% 
-    ggplot()+
-      geom_point(aes(x=animal_age,y=animal_weight),size=2.5,alpha=0.2,color='purple')+
-      theme_minimal()+
-      xlab('Age')+
-      ylab('Weight')+
-      ggtitle("Female Bison from Konza Prairie")+
-      theme(axis.title = element_text(size=26),axis.text = element_text(size=20))+
-      theme(plot.title = element_text(size=28,hjust=0.5))+
-    geom_line(data=dft(),aes(x=age,y=weight),color="#79A540",size=2)
-  })
-</script>
- 
-<script type="application/shiny-prerendered" data-context="server-extras">
-ojs_define <- function(..., .session = shiny::getDefaultReactiveDomain()) {
-  quos <- rlang::enquos(...)
-  vars <- rlang::list2(...)
-  nm <- names(vars)
-  if (is.null(nm)) {
-    nm <- rep_len("", length(vars))
-  }
-  mapply(function(q, nm, val) {
-    # Infer name, if possible
-    if (nm == "") {
-      tryCatch({
-        nm <- rlang::as_name(q)
-      }, error = function(e) {
-        code <- paste(collapse = "\n", deparse(rlang::f_rhs(q)))
-        stop("ojs_define() could not create a name for the argument: ", code)
-      })
-    }
-    .session$output[[nm]] <- val
-    outputOptions(.session$output, nm, suspendWhenHidden = FALSE)
-    .session$sendCustomMessage("ojs-export", list(name = nm))
-    NULL
-  }, quos, nm, vars, SIMPLIFY = FALSE, USE.NAMES = FALSE)
-  invisible()
-}
-</script>
-</p>
-<!--html_preserve-->
-
-<script type="application/shiny-prerendered" data-context="dependencies">
-{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ionrangeslider-javascript"]},{"type":"character","attributes":{},"value":["2.3.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/ionrangeslider"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/ion.rangeSlider.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["strftime"]},{"type":"character","attributes":{},"value":["0.9.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/strftime"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["strftime-min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ionrangeslider-css"]},{"type":"character","attributes":{},"value":["2.3.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/ionrangeslider"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/ion.rangeSlider.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ionrangeslider-javascript"]},{"type":"character","attributes":{},"value":["2.3.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/ionrangeslider"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/ion.rangeSlider.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["strftime"]},{"type":"character","attributes":{},"value":["0.9.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/strftime"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["strftime-min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ionrangeslider-css"]},{"type":"character","attributes":{},"value":["2.3.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/ionrangeslider"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/ion.rangeSlider.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ionrangeslider-javascript"]},{"type":"character","attributes":{},"value":["2.3.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/ionrangeslider"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/ion.rangeSlider.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["strftime"]},{"type":"character","attributes":{},"value":["0.9.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/strftime"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["strftime-min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ionrangeslider-css"]},{"type":"character","attributes":{},"value":["2.3.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["www/shared/ionrangeslider"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/ion.rangeSlider.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["shiny"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.8.0"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["kePrint"]},{"type":"character","attributes":{},"value":["0.0.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["kePrint-0.0.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["kePrint.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["kableExtra"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.3.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["lightable"]},{"type":"character","attributes":{},"value":["0.0.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lightable-0.0.1"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["lightable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["kableExtra"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.3.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["kePrint"]},{"type":"character","attributes":{},"value":["0.0.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["kePrint-0.0.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["kePrint.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["kableExtra"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.3.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["lightable"]},{"type":"character","attributes":{},"value":["0.0.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lightable-0.0.1"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["lightable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["kableExtra"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.3.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["kePrint"]},{"type":"character","attributes":{},"value":["0.0.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["kePrint-0.0.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["kePrint.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["kableExtra"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.3.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["lightable"]},{"type":"character","attributes":{},"value":["0.0.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lightable-0.0.1"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["lightable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["kableExtra"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["1.3.4"]}]}]}
-</script>
-<!--/html_preserve-->
-<!--html_preserve-->
-
-<script type="application/shiny-prerendered" data-context="execution_dependencies">
-{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88]}},"value":[{"type":"character","attributes":{},"value":["backports","base","broom","bslib","cachem","cli","colorspace","compiler","curl","datasets","digest","dplyr","ellipsis","evaluate","fansi","farver","fastmap","forcats","generics","ggplot2","glue","graphics","grDevices","grid","gtable","highr","hms","htmltools","httpuv","httr","investr","jquerylib","jsonlite","kableExtra","knitr","labeling","later","lattice","lifecycle","lterdatasampler","lubridate","magrittr","Matrix","memoise","methods","mgcv","mime","munsell","nlme","pillar","pkgconfig","promises","purrr","R6","Rcpp","readr","remotes","rlang","rmarkdown","rstudioapi","rvest","sass","scales","shiny","shinyWidgets","splines","stats","stringi","stringr","svglite","systemfonts","tibble","tidyr","tidyselect","tidyverse","timechange","tools","tzdb","utf8","utils","vctrs","viridisLite","webshot","withr","xfun","xml2","xtable","yaml"]},{"type":"character","attributes":{},"value":["1.4.1","4.3.1","1.0.5","0.6.1","1.0.8","3.6.1","2.1-0","4.3.1","5.1.0","4.3.1","0.6.33","1.1.4","0.3.2","0.23","1.0.6","2.1.1","1.1.1","1.0.0","0.1.3","3.4.4","1.6.2","4.3.1","4.3.1","4.3.1","0.3.4","0.10","1.1.3","0.5.7","1.6.11","1.4.7","1.4.2","0.1.4","1.8.8","1.3.4","1.45","0.4.3","1.3.1","0.21-8","1.0.4","0.1.1","1.9.3","2.0.3","1.6-1.1","2.0.1","4.3.1","1.8-42","0.12","0.5.0","3.1-162","1.9.0","2.0.3","1.2.1","1.0.2","2.5.1","1.0.11","2.1.4","2.4.2.1","1.1.1","2.25","0.15.0","1.0.3","0.4.8","1.3.0","1.8.0","0.8.1","4.3.1","4.3.1","1.7.12","1.5.1","2.1.2","1.0.5","3.2.1","1.3.0","1.2.0","2.0.0","0.2.0","4.3.1","0.4.0","1.2.4","4.3.1","0.6.4","0.4.2","0.5.5","2.5.2","0.41","1.3.6","1.8-4","2.3.8"]}]}]}
-</script>
-<!--/html_preserve-->
+</section>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
+<ul>
+<li><p>Break linear assumption</p></li>
+<li><p>Best used with an underlying model</p></li>
+<li><p>Feed initial guess</p></li>
+</ul>
+<div class="fragment">
+<ol type="1">
+<li>Literature</li>
+</ol>
+</div>
+<div class="fragment">
+<ol start="2" type="1">
+<li>From data</li>
+</ol>
+</div>
+<div class="fragment">
+<ol start="3" type="1">
+<li>Graph</li>
+</ol>
+</div>
+<div class="fragment">
+<ol start="4" type="1">
+<li>Create starting grids</li>
+</ol>
+</div>
+</section>
+<section id="nls-place-in-the-world" class="slide level2" data-background-image="img/skywalk.webp">
+<h2>NLS place in the world</h2>
+<div class="blockquote">
+<p>Machine Learning World</p>
+</div>
+<div class="box">
+<p>Trying out the box</p>
+</div>
+</section>
+<section id="sec-model" class="slide level2">
+<h2>Static Slides in case shiny app doesn’t work</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p>How we could use step 2 and 3 in this case?</p>
+<p>Asymptotic body mass <span class="math inline">\(b1\)</span> implies a max body length we could take the biggest observed female or generally look at the graph</p>
+<p>Age inflection point <span class="math inline">\(b3\)</span> is where the curve starts bending</p>
+<p>Instantaneous growth-rate <span class="math inline">\(b2\)</span> is kind of weird, but you could manipulate a Gompertz model to see how it changes the model</p>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="nls-lecture_files/figure-revealjs/combeinplot-1.png" style="height:50.0%" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><img src="img/bren-logo.png" class="slide-logo"></p>
 <div class="footer footer-default">
 
 </div>

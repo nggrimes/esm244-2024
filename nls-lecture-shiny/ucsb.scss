@@ -1,0 +1,73 @@
+/*-- scss:defaults --*/
+
+  $theme-blue: #003660;
+  $theme-gold: #FEBC11;
+  $theme-grey: #EEF0F2;
+  $theme-seagreen: #09847A;
+  $theme-aqua: #047C91;
+  $theme-moss: #6D7D33;
+  $theme-coral: #EF5645;
+  $theme-sand: #C9BF9D;
+
+
+$body-bg: #fff;
+$body-color: $theme-blue;
+$link-color: $theme-seagreen;
+
+$code-block-bg: $theme-grey;
+$code-block-font-size: .8em;
+
+/*-- scss:rules --*/
+
+
+.reveal .slide blockquote {
+  border-left: 3px solid $text-muted;
+  padding-left: 0.5em;
+}
+
+  .reveal .title {
+    background-image: url(https://raw.githubusercontent.com/nggrimes/ucsb-xaringan/master/img/ucsb_logo.png);
+    background-position: 0% 0%;
+    background-size: 400px;
+    background-color: #fff;
+      padding-left: 100px;
+    background-repeat: no-repeat;
+  } 
+  
+   .reveal .title{
+    color: #003660;
+      padding-top: 120px;
+    font-weight: normal;
+    font-size: 55px;
+    line-height: 0.05;
+    text-align: center;
+    text-shadow: none;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+  }
+  
+  .textcenter{
+    text-align: center;
+  }
+  
+  .gold{
+    color: $theme-gold;
+  }
+  
+  .seagreen{
+    color: $theme-seagreen;
+  }
+  
+  .coral{
+    color: $theme-coral;
+  }
+  
+  .small-text{
+    font-size: .75em;
+  }
+  
+  .gold-bold{
+    color: $theme-gold;
+    font-weight: bold;
+  }
+  
