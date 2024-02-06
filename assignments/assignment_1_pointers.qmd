@@ -1,0 +1,224 @@
+---
+title: "Assignment 1 Pointers"
+author: "Nathaniel Grimes"
+format: 
+  html:
+    code-fold: true
+    embed-resources: true
+execute: 
+  echo: true
+  message: false
+  warning: false
+editor: visual
+---
+
+```{r}
+
+#Package Load
+
+library(tidyverse)
+library(lubridate)
+library(patchwork)
+library(tsibble)
+library(feasts)
+
+amphibian_raw<-readxl::read_excel(here::here("data","assignment_1","sierra_amphibians.xlsx"))
+
+ylfrogt2<-amphibian_raw %>% 
+    filter(amphibian_life_stage %in% c("Adult","SubAdult") & amphibian_species=="RAMU") %>% 
+  group_by(lake_id) %>% 
+  summarize(total=sum(amphibian_number,na.rm=TRUE)) %>% 
+  arrange(desc(total)) %>% 
+  head(n=5) %>% 
+  mutate(lake_id=sub("^","Lake ",lake_id))
+```
+
+## Most frequent mistakes
+
+1.  Careful of `na`
+
+     
+    a .  Most points were lost on not handling nas in the frog data
+
+    b.  After you summarize, look at the table to see if anything is a miss. You should have noticed an NA for year 2000 tadpoles
+
+    c.  Clean either with sum(na.rm=true) or drop the na before.
+
+    d.  Justify to yourself why there is an na and why it should be dropped
+
+
+2.  Sum vs `n()`
+
+    a.  Task asked to find the total count.
+
+    b.  Perhaps some misterpretation of what count means
+
+    c.  What does `n()` do in this case? It finds the number of days a frog of life stage X was found, not the number that were observed on a given day.
+
+## Data visualization
+
+Presenting your data is all about the story of the data. What narrative can you present and justify with your figures? This homework in particular was to see how you all approached that question. Undoubtedly it will be easier with your own data that your passionate about, but the same ideas still hold when showing results in homework assignments. Here is a list of links that do an awesome job explaining great data visualization:
+
+-   [The absolute best website for data visualization](https://www.data-to-viz.com/#explore):
+    -   It has a flowchart of what graphs you should use for every type of data. With links to R, Python, and JS code so you can actually run it.
+    -   The Cavets page describes common issues and how to manage them from both an artistic and data perspective.
+-   [Friends Don't Let Friends Make Bad Graphs](https://github.com/cxli233/FriendsDontLetFriends): A Fun little github blog that explains why some data visualizations shouldn't be done.
+
+-   [Great Book on graphing objects in R](https://rkabacoff.github.io/datavis/index.html)
+
+-   [THE ggplot book](https://ggplot2-book.org/)
+
+There are two points specific to this class and homework assignment that I want to address here.
+
+### Monthly Season Plots
+
+Nearly everyone in class plotted the season plots as shown in @fig-class-season. While technically correct, there was little to no interpretation of the results. This is primarily because they are so messy as they use daily salmon return counts. Daily counts are extremely volatile. Now if that is the intention and a discussion was around how much variance there is daily return and how that changes with months this would be a suitable graph. Remember data visualization needs a story. Instead let's plot the total weekly and monthly counts as a comparison in @fig-week and @fig-month.
+
+```{r}
+# data and package load
+
+fish_raw<-read_csv(here::here("data","assignment_1","willamette_fish_passage.csv"))
+
+fish<-fish_raw %>% 
+  janitor::clean_names() %>% 
+  mutate(date=lubridate::mdy(date)) %>% 
+  as_tsibble(key=NULL,index=date) %>% 
+  pivot_longer(!c(project,date),names_to = "species",values_to = "fish_ob") %>% 
+  filter(species %in% c("coho","jack_coho","steelhead")) %>% 
+  replace_na(list(fish_ob=0))
+```
+
+```{r}
+#| label: fig-class-season
+#| fig-cap: "Daily returns of Salmon at Williamette River. Lighter green colors indicate earlier years with darker green showing later years."
+
+fish_season<-fish %>% 
+  group_by(species) %>% 
+  summarize(monthly_count=sum(fish_ob))   
+  
+  fish_season |> gg_season(y=monthly_count)+
+    scale_color_gradient(low="lightgrey",high="darkgreen")+
+    labs(x='',y='Daily Fish Passage')+
+    theme_minimal()
+
+```
+
+```{r}
+#| label: fig-week
+#| fig-cap: "Total Weekly returns of Salmon at Williamette River Dam. Lighter green colors indicate earlier years with darker green showing later years."
+
+fish_season<-fish %>%
+  index_by(yr_mo=~yearweek(.)) %>% 
+  group_by(species) %>% 
+  summarize(monthly_count=sum(fish_ob))   
+  
+  fish_season |> gg_season(y=monthly_count)+
+    scale_color_gradient(low="lightgrey",high="darkgreen")+
+    labs(x='',y='Daily Fish Passage')+
+    theme_minimal()
+```
+
+```{r}
+#| label: fig-month
+#| fig-cap: "Total Monthly returns of Salmon at Williamette River Dam. Lighter green colors indicate earlier years with darker green showing later years."
+
+fish_season<-fish %>%
+  index_by(yr_mo=~yearmonth(.)) %>% 
+  group_by(species) %>% 
+  summarize(monthly_count=sum(fish_ob))   
+  
+  fish_season |> gg_season(y=monthly_count)+
+    scale_color_gradient(low="lightgrey",high="darkgreen")+
+    labs(x='',y='Daily Fish Passage')+
+    theme_minimal()
+```
+
+
+My preferred resolution would probably be weekly shown in @fig-week. The reason is it creates a chance to tell the most interesting story, particularly for steelhead. The seasonality is clear with late April and May being the time most steelhead return. Over the years we can note that there has been a decline in total returns during this period, but also that might be a shift in the timing of returns. We can see these trends more clearly than the noisy daily data in @fig-class-season and moreso than the holistic monthly summation where we lose ability the see the variance because of the scaling up.
+
+### Titles and Captions
+
+I heard the surprise in that I am not a fan of plot titles. I have two reasons. First, I find it rare that a title contains more information than a well captioned figure. In fact, it's often redundant and I would rather have a descriptive figure caption than a title. 
+
+Second, the way data visualization works in nearly all statistical languages is not conducive to adding plot titles. Underneath the hood of ggplot, it defines a series of grids that it will in information from the data, themes, guides, and label attributes we give it through our whole ggplot()+theme+etc... When you add a title it has to take space that would otherwise be used for the graph itself to make a title. It would be like giving a painter a canvas then marking off the top fifth to say you have to leave that blank to write the name of the piece. That never happens because just like a painting, you want your data to sing and be the focus.  Yes, there are ways to adjust the size of the plot so the canvas is bigger and the title fits, but it would still be better to not include a title unless absolutely necessary. Observe two plots of the same size from Task 1 laid out side by side.
+
+::::{.columns}
+
+:::{.column width="50%"}
+
+```{r}
+ggplot(ylfrogt2,aes(x=fct_reorder(lake_id,total),y=total,fill=factor(lake_id)))+
+  geom_col(fill="#21918c")+
+  theme_classic()+
+  labs(title="Lakes with the most Rama mucosa\nobservations from 1995-2002",y="",x="")+
+  theme(legend.position = "none")+
+  theme(axis.text = element_text(size=16))+
+  theme(plot.title = element_text(size=20))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))
+```
+
+
+:::
+
+:::{.column width="50%"}
+
+```{r}
+#| label: fig-notitle
+#| fig-cap: "Lakes with the most *Rama mucosa* observations from 1995-2002. Also note how much easier it is to format stuff inside the caption than with ggplot expressions."
+ggplot(ylfrogt2,aes(x=fct_reorder(lake_id,total),y=total,fill=factor(lake_id)))+
+  geom_col(fill="#21918c")+
+  theme_classic()+
+  labs(y="",x="")+
+  theme(legend.position = "none")+
+  theme(axis.text = element_text(size=16))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))
+```
+
+
+:::
+
+::::
+
+Notice how to get the title to fit I had to drop it down a line and how much space that takes up while not adding any information beyond what the figure caption contains? The amount of space the graphs show is less as well. If you absolutely need a title and think it looks better, than go for it. Just keep the title short and really ask yourself if it's worth it. One final observation, most journals aren't using figures with plot titles for the reasons I articulated, but also because they can be a pain to deal with. It's easier to use Quarto and Latex styling to control figures. Let's use those tools.
+
+One final push is to encourage everyone to use the quarto `fig-cap: "" ` options instead of plot_annotation. Like plot titles it takes space away from the data that we could alternatively use the quarto figure caption. Because the figure caption is not a ggplot object its *WAY* easier editing with the same markdown language we use in the rest of the doc. Also we change the theme of figure captions with direct commands like `fig-cap-location` in code chunks or up in the YAML with `crossref: fig-title: Style the figure caps the way I want`
+
+::::{.columns}
+
+:::{.column width="50%"}
+
+```{r}
+p1<-ggplot(ylfrogt2,aes(x=fct_reorder(lake_id,total),y=total,fill=factor(lake_id)))+
+  geom_col(fill="#21918c")+
+  theme_classic()+
+  labs(title="Lakes with the most Rama Mucosa\nobservations from 1995-2002",y="",x="")+
+  theme(legend.position = "none")+
+  theme(axis.text = element_text(size=16))+
+  theme(plot.title = element_text(size=20))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))
+
+p1+plot_annotation(caption="Here's a figure caption using plot annotation. It takes up space to let the data sing despite the plot being the same size.\nAlso its more annoying to adjust the text size the automatically rendered figure caption that matches the theme of the overall document.")
+```
+
+
+
+:::
+
+:::{.column width="50%"}
+
+```{r}
+#| label: fig-quartocap
+#| fig-cap: "Lakes with the most *Rama Mucosa* observations from 1995-2002. Also note how much easier it is to format stuff inside the caption than with ggplot expressions."
+ggplot(ylfrogt2,aes(x=fct_reorder(lake_id,total),y=total,fill=factor(lake_id)))+
+  geom_col(fill="#21918c")+
+  theme_classic()+
+  labs(y="",x="")+
+  theme(legend.position = "none")+
+  theme(axis.text = element_text(size=16))+
+  theme(axis.text.x = element_text(angle=45,hjust=1))
+```
+
+
+:::
+
+::::
