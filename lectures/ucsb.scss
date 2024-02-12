@@ -8,11 +8,12 @@
   $theme-moss: #6D7D33;
   $theme-coral: #EF5645;
   $theme-sand: #C9BF9D;
+  $theme-bren: #79A540;
 
 
 $body-bg: #fff;
 $body-color: $theme-blue;
-$link-color: $theme-seagreen;
+$link-color: $theme-bren;
 
 $code-block-bg: $theme-grey;
 $code-block-font-size: .8em;
@@ -21,7 +22,7 @@ $code-block-font-size: .8em;
 
 .reveal a {
 	line-height: 1.5em;
-	color: #e84a27;
+	color: $theme-seagreen;
 	font-weight: 300;
 }
 
@@ -208,9 +209,9 @@ h2::after.title {
   
   //extra features I've built
   .box {
-    background-color:rgba(211,211,211,.8);
+    background-color:rgba(211,211,211,.92);
     border: 4px solid;
     border-color: $theme-blue;
-    color: $theme-gold;
+    color: $theme-bren;
     padding-left: 10%;
   }

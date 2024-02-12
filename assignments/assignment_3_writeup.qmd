@@ -1,0 +1,228 @@
+---
+title: "Homework 3 Answer Key"
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+    toc: true
+execute: 
+  echo: true
+  message: false
+  warning: false
+editor: visual
+---
+
+## Task 1: 
+
+### Problem Description
+
+Farmers need to understand the biology of plants and their responses to fertilizers to maximize yield. You will help farmers make predictions on their yields by running non-linear least squares on experimental growth data for three grains in Greece. Additionally, you will assess the response of the grains to fertlizer. You will recreate the model examples of [Archontoulis, S.V. and Miguez, F.E. (2015)](https://acsess.onlinelibrary.wiley.com/doi/10.2134/agronj2012.0506). Read the paper to acquire more insight into nonlinear least squares and its application in agriculture. The data used by them and soon by you can accessed by installing the `nlraa` package and then using `library(nlraa)`. The data is stored in an object called `sm`. 
+
+**Write a brief description of the data including variable names and structure**. Use the metadata and descriptions from the paper to assist you. Create a finalized summary table of the data in your report.
+
+Choosing a model is step 1 of our NLS process. The paper describes 77 potential functions. Let's use the Beta function from Table 1 Equation 2.5 of Archontoulis, S.V. and Miguez, F.E. (2015). It might be hard to read so I wrote it out here.
+
+$$
+y=y_{max}(1+\frac{t_e-t}{t_e-t_m})(\frac{t}{t_e})^{\frac{t_e}{t_e-t_m}}
+$$
+
+**Briefly describe what each parameter generally means (Read the paper).**
+
+Write a function in R to model the Beta Function. The paper uses option 4 for guesses by creating a starting grid to show off a new function. They also indicate guesses can be acquired by examining the data. Create a plot against the data to find some potential starting values for your nls analysis. In your final report include the code, but NOT the plot you used to feed guesses.
+
+Filter out observations from the sorgum fields with high inputs and run an NLS model to predict yield for any given day of the year. **Make a good looking table** showing the selected parameter values, standard errors, and p-values of the estimated parameters. **Graph the fitted model on top of the maize data.**
+
+Run NLS models for all 24 combinations of plot, input level, and crop type using purrr. For each species, which model had the lowest RMSE? **Show a table of the RMSE and chosen parameter values of the best fitted models for each species.** 
+
+Finally, **filter to plot 1 and recreate Figure 7 of the paper.** Don't worry about adding confidence intervals on the data points. How does more fertilizer impact yield for all three grains? 
+
+Hints:
+
+- I would separate dataframes one of the filtered data and another of the model predictions with a vector of days from 141 to 306. Then create two figures for each input and join them with patchwork or cowplot.
+
+- Filter observations of predicted yield for maize when day of year is less than 263. Otherwise your graph is going to look weird.
+
+## Solution
+
+```{r}
+#load data and packages
+library(tidyverse)
+library(nlraa)
+library(knitr)
+library(kableExtra)
+library(broom)
+library(patchwork)
+
+sm_clean<-sm |> 
+  janitor::clean_names()
+
+```
+
+
+### Define Beta Function
+
+```{r}
+beta_fcn<-function(ymax,te,tm,data){
+  out=ymax*(1+(te-data)/(te-tm))*(data/te)^(te/(te-tm))
+  
+  return(out)
+}
+
+```
+
+### Find Guesses by graphing
+
+```{r}
+#| eval: false
+
+doy_vec=seq(141,303,by=1)
+
+#Input values to see what it looks against the data
+test<-beta_fcn(40,250,200,doy_vec)
+
+test_df<-data.frame(doy_vec,test)
+
+ggplot(data=sm_clean,aes(x=doy,y=yield))+
+  geom_point(aes(shape=crop))+
+  geom_line(data=test_df,aes(x=doy_vec,y=test))
+```
+
+### Run single nls
+
+```{r}
+sorg<-sm_clean |> 
+  filter(crop=="S" & input==2)
+
+sorg_nls<-nls(yield~beta_fcn(ymax,te,tm,doy),
+           data=sorg,
+           start=list(ymax=20,te=240,tm=200))
+```
+
+
+
+```{r}
+#| label: tbl-single-nls
+#| tbl-cap: "Estimates of Beta Growth function of Sorghum from Non Linear Least Squares"
+
+tidy(sorg_nls) |> 
+  kable(col.names = c("Variable","Estimate","Standard Error","Statistic","p-value"))
+```
+
+### Purrr runs
+
+```{r}
+## Set up a purrr function to loop over the other 
+nls_fcn<-function(df){
+  out<-nls(yield~beta_fcn(ymax,te,tm,doy),
+                 data=df,
+                 start=list(ymax=20,te=240,tm=200))
+  
+  return(out)
+}
+
+rmse<-function(x,y){
+  (x-y)^2 |> mean() |> sqrt()
+}
+
+## Create dataframe
+models<-sm_clean |> 
+  group_by(crop,input,block) |> 
+  nest() |> 
+  mutate(nls_model=map(.x=data,~nls_fcn(.x))) |> 
+  mutate(smooth=map(.x=nls_model,~predict(.x,newdata=list(doy=seq(147,306))))) |>
+  mutate(predict=map(.x=nls_model,~predict(.x))) |> 
+  mutate(coeff=map(.x=nls_model,~broom::tidy(.x))) |> 
+  mutate(rmse=map2_dbl(.x=predict,.y=data,~rmse(.x,.y$yield)))
+
+
+## Let's extract best models for each crop
+
+rmse_df<-models |> 
+  group_by(crop) |> 
+  slice_min(rmse) |> 
+  select(block,input,crop,rmse,coeff) |> 
+  unnest(coeff)
+
+```
+
+
+```{r}
+#| label: tbl-purrr
+#| tbl-cap: "NLS Coefficients on best models for each crop"
+#| tbl-subcap: 
+#|  - "Maize"
+#|  - "Sorghum"
+#|  - "Wheat"
+#| layout-nrow: 3
+
+#MAize table
+rmse_df |> 
+  filter(crop=="M") |> 
+  select(-crop) |> 
+  kable()
+
+# Sorghum
+rmse_df |> 
+  filter(crop=="S") |> 
+  kable()
+  
+  
+
+# Wheat
+rmse_df |> 
+  filter(crop=="F") |> 
+  select(-crop) |> 
+  kable()
+
+
+```
+
+
+
+```{r}
+## Unnest predictions from the data and clean maize data
+un_df<-models |> 
+  filter(block==1) |> 
+  tidyr::unnest(smooth) |> 
+  mutate(doy=seq(147,306)) |> 
+  filter(!(doy>263 & crop=="M"))
+
+# Create a dataframe to add corn data
+hi_filt<-sm_clean |> 
+  filter(block==1 & input==2)
+
+low_filt<-sm_clean |> 
+  filter(block==1 & input==1)
+
+## Make two graphs
+
+hi_plot<-un_df |> 
+  filter(block==1 & input==2) |> 
+  ggplot()+
+  geom_point(data=hi_filt,aes(x=doy,y=yield,shape=crop))+
+  geom_line(aes(x=doy,y=smooth,linetype=crop))+
+  ylim(c(0,50))+
+  theme_minimal()+
+  labs(x="Day of Year",y="Yield")
+
+low_plot<-un_df |> 
+  filter(block==1 & input==1) |> 
+  ggplot()+
+  geom_point(data=low_filt,aes(x=doy,y=yield,shape=crop))+
+  geom_line(aes(x=doy,y=smooth,linetype=crop))+
+  ylim(c(0,50))+
+  theme_minimal()+
+  labs(x="Day of Year",y="Yield")
+
+```
+
+
+
+```{r}
+#| label: fig-purrr-plot
+#| fig-cap: "PAnel 1 is low input, Panel B is high input blah blah"
+
+low_plot+hi_plot+plot_layout(guides = "collect",axis_titles = "collect")
+
+```
+

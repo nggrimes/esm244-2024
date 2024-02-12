@@ -11,7 +11,7 @@
   <meta name="generator" content="quarto-1.3.433">
 
   <meta name="author" content="Nathaniel Grimes">
-  <meta name="dcterms.date" content="2024-02-01">
+  <meta name="dcterms.date" content="2024-02-07">
   <title>Non-linear Least Squares</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -410,7 +410,7 @@ Nathaniel Grimes
     </div>
 </div>
 
-  <p class="date">2024-02-01</p>
+  <p class="date">2024-02-07</p>
 </section>
 <section id="quick-aside" class="slide level2">
 <h2>Quick Aside</h2>
@@ -450,15 +450,6 @@ Nathaniel Grimes
 </section>
 <section id="remember-what-ordinary-least-squares-does-first" class="slide level2">
 <h2>Remember what Ordinary Least Squares does first</h2>
-<div class="absolute" style="top: 0px; left: 100%; ">
-<div class="sectionhead">
-<p>What is NLS?</p>
-<p><span style="opacity:0.25">Why NLS?</span></p>
-<p><br></p>
-<p><span style="opacity:0.25">NLS in R</span></p>
-<p><span style="opacity:0.25">Maximization</span></p>
-</div>
-</div>
 <p>The Fundamental Objective of OLS</p>
 <div class="columns">
 <div class="column" style="width:45%;">
@@ -509,6 +500,9 @@ Nathaniel Grimes
 <ul>
 <li class="fragment"><p>Linear relationship between predictor (y) and variables (x)</p></li>
 <li class="fragment"><p>Multicollinearity</p></li>
+<li class="fragment"><p>Errors normally distributed</p></li>
+<li class="fragment"><p>Homoscedasticity</p></li>
+<li class="fragment"><p>Sensitive to outliers</p></li>
 </ul>
 </div>
 </section>
@@ -518,8 +512,8 @@ Nathaniel Grimes
 <img data-src="nls-lecture_files/figure-revealjs/unnamed-chunk-5-1.png" width="1152" class="r-stretch quarto-figure-center"></section>
 <section id="or-this" class="slide level2">
 <h2>Or this?</h2>
-<p><img data-src="img/refractivity.PNG">{width=“90%,height=90%,fig-align=”center”}</p>
-</section>
+
+<img data-src="img/refractivity.PNG" class="r-stretch quarto-figure-center"></section>
 <section id="in-specific-applications-accuracy-greatly-matters" class="slide level2">
 <h2>In specific applications, accuracy greatly matters!</h2>
 
@@ -618,7 +612,7 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 </div>
 <p>Requires good initial guesses</p>
 <ul>
-<li>Comes from algorithms <a href="@sec-algo">Click back to slide</a></li>
+<li>Comes from algorithms <a href="#/sec-algo">Click back to slide</a></li>
 </ul>
 </div>
 </div>
@@ -631,10 +625,21 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <li><p><span class="small-text">Operationally, the Navy doesn’t have time to guess</span></p></li>
 </ul>
 </section>
-<section>
-<section id="using-nls-in-r" class="title-slide slide level1 center" data-background-color="#003660">
-<h1>Using NLS in R</h1>
-
+<section id="using-nls-in-r" class="slide level2" data-background-color="#003660">
+<h2>Using NLS in R</h2>
+</section>
+<section id="implementation-framework" class="slide level2">
+<h2>Implementation Framework</h2>
+<ul>
+<li><p>Step 1: Identify <span class="math inline">\(f(x,\beta)\)</span></p>
+<ul>
+<li>Use Literature or build your own from theoretical justification</li>
+</ul></li>
+<li><p>Step 2: Build <span class="math inline">\(f(x,\beta)\)</span> as an R function</p></li>
+<li><p>Step 3: Find initial guesses</p></li>
+<li><p>Step 4: Combine everything and run with <code>nls()</code></p></li>
+<li><p>Step 5: Evaluate results</p></li>
+</ul>
 </section>
 <section id="lets-apply-nls-to-our-female-bisons" class="slide level2">
 <h2>Let’s apply NLS to our Female Bisons</h2>
@@ -645,6 +650,21 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 </div>
 
 <img data-src="nls-lecture_files/figure-revealjs/bisongraph-1.png" style="width:35.0%" class="r-stretch quarto-figure-center"></section>
+<section id="bison-restoration-needs-accurate-ecosystem-and-population-models" class="slide level2" data-background-image="img/apf-bis.jpg">
+<h2>Bison Restoration needs accurate ecosystem and population models</h2>
+<p><br></p>
+<div class="box">
+<p>Fit data from Konza Prairie LTER to inform Sun Prairie Restoration Efforts</p>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="img/bis-car.jpg" class="r-stretch quarto-figure-center"></section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+
+<img data-src="img/bis-hike.jpg" class="r-stretch quarto-figure-center"></section>
 <section id="use-r-built-in-functions" class="slide level2">
 <h2>Use R Built in functions</h2>
 <div class="cell">
@@ -657,10 +677,9 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <span id="cb3-7"><a href="#cb3-7"></a>            ... <span class="co"># some other useful stuff )</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="what-model-to-use" class="slide level2">
-<h2>What Model to use?</h2>
-<p>Scour the literature or create your own (only with sufficient justification)</p>
-<p>Martin and Barboza (2020) used a Gompertz model</p>
+<section id="step-1-what-model-to-use" class="slide level2">
+<h2>Step 1: What Model to use?</h2>
+<p>Martin and Barboza (2020) used a Gompertz model to predict bison mass</p>
 <p><span class="math display">\[BM=b1*exp(-exp(-b2*(age-b3)))\]</span></p>
 <div class="columns">
 <div class="column" style="width:50%;">
@@ -678,8 +697,8 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 </div>
 </div>
 </section>
-<section id="create-a-function-in-r-to-test-our-model" class="slide level2">
-<h2>Create a function in R to test our model</h2>
+<section id="step-2-build-r-function" class="slide level2">
+<h2>Step 2: Build R function</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>gompertz<span class="ot">&lt;-</span><span class="cf">function</span>(b1,b2,b3,age){</span>
 <span id="cb4-2"><a href="#cb4-2"></a> BM<span class="ot">=</span> b1<span class="sc">*</span><span class="fu">exp</span>(<span class="sc">-</span><span class="fu">exp</span>(<span class="sc">-</span>b2<span class="sc">*</span>(age<span class="sc">-</span>b3)))</span>
@@ -690,10 +709,10 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <p><br></p>
 <p><span class="small-text">Note: For the nls function it’s okay to define all parameters like we did. In other optimization tools (e.g.&nbsp;optim) you would want to keep the first input index as a vector if you have multiple choice variables</span></p>
 </section>
-<section id="providing-a-guess-is-very-important" class="slide level2">
-<h2>Providing a guess is very important</h2>
+<section id="step-3-provide-guesses" class="slide level2">
+<h2>Step 3: Provide Guesses</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5" data-code-line-numbers="|"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>df_nls<span class="ot">&lt;-</span><span class="fu">nls</span>(animal_weight<span class="sc">~</span><span class="fu">gompertz</span>(b1,b2,b3,animal_age),   </span>
+<div class="sourceCode cell-code" id="cb5" data-code-line-numbers="3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>df_nls<span class="ot">&lt;-</span><span class="fu">nls</span>(animal_weight<span class="sc">~</span><span class="fu">gompertz</span>(b1,b2,b3,animal_age),   </span>
 <span id="cb5-2"><a href="#cb5-2"></a>            <span class="at">data=</span>knz_bison_age,   </span>
 <span id="cb5-3"><a href="#cb5-3"></a>            <span class="at">start=</span><span class="fu">list</span>(<span class="at">b1=</span>?,<span class="at">b2=</span>?,<span class="at">b3=</span>?),</span>
 <span id="cb5-4"><a href="#cb5-4"></a>            <span class="at">trace=</span><span class="cn">TRUE</span> )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -701,8 +720,9 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <p><br></p>
 <p>The initial guesses and <code>data</code> variable also tell nls which variables we are trying to find from our data</p>
 </section>
-<section id="methods-for-providing-guesses" class="slide level2">
-<h2>4 methods for providing guesses</h2>
+<section id="step-3-provide-guesses-1" class="slide level2">
+<h2>Step 3: Provide Guesses</h2>
+<p><em>4 methods for providing guesses</em></p>
 <ol type="1">
 <li><p>Use past parameters from similar studies</p></li>
 <li><p>Use data to internally define guesses (min, mean, max, etc.)</p></li>
@@ -710,15 +730,15 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 <li><p>In N-D, combine steps 1-2 then create a start grid to search over</p></li>
 </ol>
 </section>
-<section id="interactive-applied-guesses" class="slide level2">
+<section id="sec-interactive" class="slide level2">
 <h2>Interactive applied guesses</h2>
 <iframe src="https://nggrimes.shinyapps.io/bison_app/" height="1200" width="1000">
 </iframe>
 <p><br></p>
-<p><span class="small-text">Link to static slides <a href="#/sec-model">Section&nbsp;1.15</a></span></p>
+<p><a href="#/sec-model" class="small-text">Link to static slides</a></p>
 </section>
-<section id="apply-guesses" class="slide level2">
-<h2>Apply guesses</h2>
+<section id="step-4-run-model" class="slide level2">
+<h2>Step 4: Run Model</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>b_gompertz<span class="ot">&lt;-</span><span class="fu">nls</span>(animal_weight<span class="sc">~</span><span class="fu">gompertz</span>(b1,b2,b3,animal_age),</span>
 <span id="cb6-2"><a href="#cb6-2"></a>                      <span class="at">data =</span> knz_bison_age,</span>
@@ -733,8 +753,8 @@ y_i&amp;=f(x_i,\boldsymbol\beta)+\epsilon_i &amp;\text{(1)}\\
 </div>
 </div>
 </section>
-<section id="what-did-the-model-find" class="slide level2">
-<h2>What did the model find?</h2>
+<section id="step-5-what-did-the-model-find" class="slide level2">
+<h2>Step 5: What did the model find?</h2>
 <div class="cell">
 <style type="text/css">
 .small-code{
@@ -904,11 +924,11 @@ font-size: 75%;
 <ul>
 <li><p>Break linear assumption</p></li>
 <li><p>Best used with an underlying model</p></li>
-<li><p>Feed initial guess</p></li>
+<li><p>Feed initial guess (How?)</p></li>
 </ul>
 <div class="fragment">
 <ol type="1">
-<li>Literature</li>
+<li>Literature/Theory</li>
 </ol>
 </div>
 <div class="fragment">
@@ -929,12 +949,58 @@ font-size: 75%;
 </section>
 <section id="nls-place-in-the-world" class="slide level2" data-background-image="img/skywalk.webp">
 <h2>NLS place in the world</h2>
-<div class="blockquote">
-<p>Machine Learning World</p>
-</div>
+<div class="fragment">
 <div class="box">
-<p>Trying out the box</p>
+<p>Machine Learning</p>
 </div>
+</div>
+<p><br> <br></p>
+<div class="fragment">
+<div class="box">
+<p>Non Linear Least Squares</p>
+</div>
+</div>
+<p><br> <br></p>
+<div class="fragment">
+<div class="box">
+<p>Optimization</p>
+</div>
+</div>
+</section>
+<section id="nls-falls-under-the-optimization-umbrella" class="slide level2">
+<h2>NLS falls under the optimization umbrella</h2>
+<p>Many flavors and varieties of optimization</p>
+<p>As general as possible</p>
+<p><span class="math display">\[
+\begin{aligned}
+V(x,c)&amp;=\max_c f(x,c) &amp;\text{Subject to} \\
+x&amp;\ge0\\
+c&amp;\ge0 \\
+x&amp;=g(x,c)
+\end{aligned}
+\]</span></p>
+<p>Used extensively in economic research, numerical modelling, engineering, and geophysics</p>
+</section>
+<section id="which-method-to-use" class="slide level2">
+<h2>Which method to use?</h2>
+<p>Depends on the question being asked</p>
+<ul>
+<li><p>What mathematical form is the optimization equation in?</p>
+<ul>
+<li>Maximum likelihood estimation is different than quadratic programming</li>
+</ul></li>
+<li><p>Do I need it to be fast or accurate?</p></li>
+</ul>
+<p>How many/form of paramters?</p>
+<p><strong><em>Best to use methods that you understand than ones you don’t</em></strong></p>
+</section>
+<section id="optimization-toolkit-highlights" class="slide level2">
+<h2>Optimization toolkit highlights</h2>
+<p>optim/optimx: Workhorse functions in R</p>
+<p>quadprog: <a href="https://www.fishwallet.net/">Used by a GP I advised in 2021</a> and by the <a href="https://bren.ucsb.edu/projects/applying-portfolio-theory-improve-spatial-recovery-planning-pacific-salmon">Salmon Stocks GP now</a></p>
+<p>GA: Genetic algorithms are the best global tool that I know of</p>
+<p>NLoptr: <a href="https://nlopt.readthedocs.io/en/latest/NLopt_Introduction/">New project trying to keep syntax of alogrithms the same across computer languages</a></p>
+<p><a href="https://cran.r-project.org/web/views/Optimization.html">List of every optimization function with short descriptions</a></p>
 </section>
 <section id="sec-model" class="slide level2">
 <h2>Static Slides in case shiny app doesn’t work</h2>
@@ -954,13 +1020,14 @@ font-size: 75%;
 </div>
 </div>
 </div>
+<p><a href="#/sec-interactive">Back to slides</a></p>
 </div>
 </div>
 <p><img src="img/bren-logo.png" class="slide-logo"></p>
 <div class="footer footer-default">
 
 </div>
-</section></section>
+</section>
     </div>
   </div>
 

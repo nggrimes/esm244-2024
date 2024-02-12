@@ -14,7 +14,6 @@ format:
 editor: visual
 ---
 
-
 ## Quick Aside
 
 I made this presentation in Quarto using RevealJS. The code is up on Canvas if you want to see more ways Quarto can be used beyond just homework assignments
@@ -60,24 +59,11 @@ library(kableExtra)
 library(gstat)
 ```
 
-
 ## What is Non-linear Least Squares? {background-color="#003660"}
 
 ## Remember what Ordinary Least Squares does first
 
-::: {.absolute top="0" left="100%"}
-::: {.sectionhead}
-What is NLS? 
 
-[Why NLS?]{style="opacity:0.25"}
-
-<br/>
-
-[NLS in R]{style="opacity:0.25"}
-
-[Maximization]{style="opacity:0.25"}
-:::
-:::
 
 The Fundamental Objective of OLS
 
@@ -151,6 +137,11 @@ $\hat\beta=\min_\beta \sum^n_{i=1}\hat{\epsilon_i}^2=\sum^n_{i=1}(y_i-\beta x_i)
 
 -   Multicollinearity
 
+-   Errors normally distributed
+
+-   Homoscedasticity
+
+-   Sensitive to outliers
 :::
 
 ## What if we get something like this?
@@ -173,7 +164,7 @@ ggplot(data=knz_bison_age)+
 
 ## Or this?
 
-![](img/refractivity.PNG){width="90%,height=90%,fig-align="center"}
+![](img/refractivity.PNG){fig-align="center"}
 
 ## In specific applications, accuracy greatly matters!
 
@@ -231,7 +222,6 @@ log_fit_nug <- fit.variogram(log_vgm,
 
 plot(log_vgm,log_fit_nug)
 ```
-
 
 fit.variogram uses a Levenberg-Marquardt to find the nugget, sill, and range
 
@@ -291,7 +281,7 @@ knitr::include_graphics("img/minmax.png")
 
 Requires good initial guesses
 
--   Comes from algorithms [Click back to slide](@sec-algo)
+-   Comes from algorithms [Click back to slide](#sec-algo)
 :::
 :::
 
@@ -305,7 +295,21 @@ knitr::include_graphics("img/vtrpe_run.PNG")
 
 -   [Operationally, the Navy doesn't have time to guess]{.small-text}
 
-# Using NLS in R {background-color="#003660"}
+## Using NLS in R {background-color="#003660"}
+
+## Implementation Framework
+
+- Step 1: Identify $f(x,\beta)$
+    
+    - Use Literature or build your own from theoretical justification
+    
+- Step 2: Build $f(x,\beta)$ as an R function
+
+- Step 3: Find initial guesses
+
+- Step 4: Combine everything and run with `nls()`
+
+- Step 5: Evaluate results
 
 ## Let's apply NLS to our Female Bisons
 
@@ -328,6 +332,21 @@ knz_plt<-ggplot(data=knz_bison_age)+
 knz_plt
 ```
 
+
+## Bison Restoration needs accurate ecosystem and population models{background-image="img/apf-bis.jpg"}
+
+<br/>
+
+::: box
+Fit data from Konza Prairie LTER to inform Sun Prairie Restoration Efforts
+:::
+
+##
+![](img/bis-car.jpg){fig-align="center"}
+
+## 
+![](img/bis-hike.jpg){fig-align="center"}
+
 ## Use R Built in functions
 
 ```{r nls, echo=TRUE,eval=FALSE}
@@ -340,11 +359,9 @@ df_nls<-nls(formula=   # Model we want to estimate,
             ... # some other useful stuff )
 ```
 
-## What Model to use?
+## Step 1: What Model to use?
 
-Scour the literature or create your own (only with sufficient justification)
-
-Martin and Barboza (2020) used a Gompertz model
+Martin and Barboza (2020) used a Gompertz model to predict bison mass
 
 $$BM=b1*exp(-exp(-b2*(age-b3)))$$
 
@@ -391,7 +408,7 @@ df1plt
 :::
 :::
 
-## Create a function in R to test our model
+## Step 2: Build R function
 
 ```{r model, echo=TRUE}
 gompertz<-function(b1,b2,b3,age){
@@ -406,10 +423,10 @@ return(BM)
 
 [Note: For the nls function it's okay to define all parameters like we did. In other optimization tools (e.g. optim) you would want to keep the first input index as a vector if you have multiple choice variables]{.small-text}
 
-## Providing a guess is very important
+## Step 3: Provide Guesses
 
 ```{r nlsguess, echo=TRUE,eval=FALSE}
-#| code-line-numbers: "|"
+#| code-line-numbers: "3"
 df_nls<-nls(animal_weight~gompertz(b1,b2,b3,animal_age),   
             data=knz_bison_age,   
             start=list(b1=?,b2=?,b3=?),
@@ -420,7 +437,9 @@ df_nls<-nls(animal_weight~gompertz(b1,b2,b3,animal_age),
 
 The initial guesses and `data` variable also tell nls which variables we are trying to find from our data
 
-## 4 methods for providing guesses
+## Step 3: Provide Guesses
+
+*4 methods for providing guesses* 
 
 1)  Use past parameters from similar studies
 
@@ -430,17 +449,17 @@ The initial guesses and `data` variable also tell nls which variables we are try
 
 4)  In N-D, combine steps 1-2 then create a start grid to search over
 
-## Interactive applied guesses 
+## Interactive applied guesses {#sec-interactive}
 
-<iframe src="https://nggrimes.shinyapps.io/bison_app/" height="1200" width="1000"></iframe>
+<iframe src="https://nggrimes.shinyapps.io/bison_app/" height="1200" width="1000">
+  
+  </iframe>
+  
+  <br/>
+  
+  [Link to static slides](#sec-model){.small-text}
 
-<br/>
-
-[Link to static slides @sec-model]{.small-text}
-
-
-
-## Apply guesses
+## Step 4: Run Model
 
 ```{r nlsrun,echo=TRUE,results=TRUE}
 b_gompertz<-nls(animal_weight~gompertz(b1,b2,b3,animal_age),
@@ -449,7 +468,7 @@ b_gompertz<-nls(animal_weight~gompertz(b1,b2,b3,animal_age),
                       trace = TRUE)
 ```
 
-## What did the model find?
+## Step 5: What did the model find?
 
 ```{css echo=FALSE}
 .small-code{
@@ -556,48 +575,98 @@ ggplot() +
   theme(plot.title = element_text(size=30,hjust=0.5))
 ```
 
-
 ## Summary
 
-- Break linear assumption
+-   Break linear assumption
 
-- Best used with an underlying model
+-   Best used with an underlying model
 
-- Feed initial guess
+-   Feed initial guess (How?)
 
-::: {.fragment}
-1) Literature
+::: fragment
+1)  Literature/Theory
 :::
 
-::: {.fragment}
-    
-2) From data
-
+::: fragment
+2)  From data
 :::
 
-::: {.fragment}
-    
-3) Graph
-
+::: fragment
+3)  Graph
 :::
 
-::: {.fragment}
-    
-4) Create starting grids
-
+::: fragment
+4)  Create starting grids
 :::
 
 ## NLS place in the world {background-image="img/skywalk.webp"}
 
-::: {.blockquote}
-Machine Learning World
+:::fragment
+::: box
+Machine Learning 
+:::
 :::
 
-::: {.box}
+<br/>
+<br/>
 
-Trying out the box
-
+::: fragment
+::: box
+Non Linear Least Squares
 :::
+:::
+
+<br/>
+<br/>
+
+:::fragment
+::: box
+Optimization
+:::
+:::
+
+## NLS falls under the optimization umbrella
+
+Many flavors and varieties of optimization
+
+As general as possible
+
+$$
+\begin{aligned}
+V(x,c)&=\max_c f(x,c) &\text{Subject to} \\
+x&\ge0\\
+c&\ge0 \\
+x&=g(x,c)
+\end{aligned}
+$$
+
+Used extensively in economic research, numerical modelling, engineering, and geophysics
+
+## Which method to use?
+
+Depends on the question being asked
+
+- What mathematical form is the optimization equation in?
+
+    - Maximum likelihood estimation is different than quadratic programming
+    
+- Do I need it to be fast or accurate?
+
+How many/form of paramters?
+
+***Best to use methods that you understand than ones you don't***
+
+## Optimization toolkit highlights
+
+optim/optimx: Workhorse functions in R 
+
+quadprog: [Used by a GP I advised in 2021](https://www.fishwallet.net/) and by the [Salmon Stocks GP now](https://bren.ucsb.edu/projects/applying-portfolio-theory-improve-spatial-recovery-planning-pacific-salmon)
+
+GA: Genetic algorithms are the best global tool that I know of
+
+NLoptr: [New project trying to keep syntax of alogrithms the same across computer languages](https://nlopt.readthedocs.io/en/latest/NLopt_Introduction/)
+
+[List of every optimization function with short descriptions](https://cran.r-project.org/web/views/Optimization.html)
 
 ## Static Slides in case shiny app doesn't work {#sec-model}
 
@@ -616,5 +685,7 @@ Instantaneous growth-rate $b2$ is kind of weird, but you could manipulate a Gomp
 ```{r combeinplot, out.height='50%',fig.align='center'}
 knz_plt+ geom_line(data=df1,aes(x=age,y=weight),color="blue",size=2)
 ```
+
+[Back to slides](#sec-interactive)
 :::
 :::
