@@ -63,8 +63,6 @@ library(gstat)
 
 ## Remember what Ordinary Least Squares does first
 
-
-
 The Fundamental Objective of OLS
 
 ::: columns
@@ -299,17 +297,17 @@ knitr::include_graphics("img/vtrpe_run.PNG")
 
 ## Implementation Framework
 
-- Step 1: Identify $f(x,\beta)$
-    
-    - Use Literature or build your own from theoretical justification
-    
-- Step 2: Build $f(x,\beta)$ as an R function
+-   Step 1: Identify $f(x,\beta)$
 
-- Step 3: Find initial guesses
+    -   Use Literature or build your own from theoretical justification
 
-- Step 4: Combine everything and run with `nls()`
+-   Step 2: Build $f(x,\beta)$ as an R function
 
-- Step 5: Evaluate results
+-   Step 3: Find initial guesses
+
+-   Step 4: Combine everything and run with `nls()`
+
+-   Step 5: Evaluate results
 
 ## Let's apply NLS to our Female Bisons
 
@@ -332,8 +330,7 @@ knz_plt<-ggplot(data=knz_bison_age)+
 knz_plt
 ```
 
-
-## Bison Restoration needs accurate ecosystem and population models{background-image="img/apf-bis.jpg"}
+## Bison Restoration needs accurate ecosystem and population models {background-image="img/apf-bis.jpg"}
 
 <br/>
 
@@ -341,10 +338,12 @@ knz_plt
 Fit data from Konza Prairie LTER to inform Sun Prairie Restoration Efforts
 :::
 
-##
+## 
+
 ![](img/bis-car.jpg){fig-align="center"}
 
 ## 
+
 ![](img/bis-hike.jpg){fig-align="center"}
 
 ## Use R Built in functions
@@ -439,7 +438,7 @@ The initial guesses and `data` variable also tell nls which variables we are try
 
 ## Step 3: Provide Guesses
 
-*4 methods for providing guesses* 
+*4 methods for providing guesses*
 
 1)  Use past parameters from similar studies
 
@@ -452,12 +451,12 @@ The initial guesses and `data` variable also tell nls which variables we are try
 ## Interactive applied guesses {#sec-interactive}
 
 <iframe src="https://nggrimes.shinyapps.io/bison_app/" height="1200" width="1000">
-  
-  </iframe>
-  
-  <br/>
-  
-  [Link to static slides](#sec-model){.small-text}
+
+</iframe>
+
+<br/>
+
+[Link to static slides](#sec-model){.small-text}
 
 ## Step 4: Run Model
 
@@ -601,14 +600,13 @@ ggplot() +
 
 ## NLS place in the world {background-image="img/skywalk.webp"}
 
-:::fragment
+::: fragment
 ::: box
-Machine Learning 
+Machine Learning
 :::
 :::
 
-<br/>
-<br/>
+<br/> <br/>
 
 ::: fragment
 ::: box
@@ -616,10 +614,9 @@ Non Linear Least Squares
 :::
 :::
 
-<br/>
-<br/>
+<br/> <br/>
 
-:::fragment
+::: fragment
 ::: box
 Optimization
 :::
@@ -646,11 +643,11 @@ Used extensively in economic research, numerical modelling, engineering, and geo
 
 Depends on the question being asked
 
-- What mathematical form is the optimization equation in?
+-   What mathematical form is the optimization equation in?
 
-    - Maximum likelihood estimation is different than quadratic programming
-    
-- Do I need it to be fast or accurate?
+    -   Maximum likelihood estimation is different than quadratic programming
+
+-   Do I need it to be fast or accurate?
 
 How many/form of paramters?
 
@@ -658,7 +655,7 @@ How many/form of paramters?
 
 ## Optimization toolkit highlights
 
-optim/optimx: Workhorse functions in R 
+optim/optimx: Workhorse functions in R
 
 quadprog: [Used by a GP I advised in 2021](https://www.fishwallet.net/) and by the [Salmon Stocks GP now](https://bren.ucsb.edu/projects/applying-portfolio-theory-improve-spatial-recovery-planning-pacific-salmon)
 

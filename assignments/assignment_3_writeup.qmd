@@ -12,11 +12,11 @@ execute:
 editor: visual
 ---
 
-## Task 1: 
+## Task 1:
 
 ### Problem Description
 
-Farmers need to understand the biology of plants and their responses to fertilizers to maximize yield. You will help farmers make predictions on their yields by running non-linear least squares on experimental growth data for three grains in Greece. Additionally, you will assess the response of the grains to fertlizer. You will recreate the model examples of [Archontoulis, S.V. and Miguez, F.E. (2015)](https://acsess.onlinelibrary.wiley.com/doi/10.2134/agronj2012.0506). Read the paper to acquire more insight into nonlinear least squares and its application in agriculture. The data used by them and soon by you can accessed by installing the `nlraa` package and then using `library(nlraa)`. The data is stored in an object called `sm`. 
+Farmers need to understand the biology of plants and their responses to fertilizers to maximize yield. You will help farmers make predictions on their yields by running non-linear least squares on experimental growth data for three grains in Greece. Additionally, you will assess the response of the grains to fertlizer. You will recreate the model examples of [Archontoulis, S.V. and Miguez, F.E. (2015)](https://acsess.onlinelibrary.wiley.com/doi/10.2134/agronj2012.0506). Read the paper to acquire more insight into nonlinear least squares and its application in agriculture. The data used by them and soon by you can accessed by installing the `nlraa` package and then using `library(nlraa)`. The data is stored in an object called `sm`.
 
 **Write a brief description of the data including variable names and structure**. Use the metadata and descriptions from the paper to assist you. Create a finalized summary table of the data in your report.
 
@@ -32,15 +32,15 @@ Write a function in R to model the Beta Function. The paper uses option 4 for gu
 
 Filter out observations from the sorgum fields with high inputs and run an NLS model to predict yield for any given day of the year. **Make a good looking table** showing the selected parameter values, standard errors, and p-values of the estimated parameters. **Graph the fitted model on top of the maize data.**
 
-Run NLS models for all 24 combinations of plot, input level, and crop type using purrr. For each species, which model had the lowest RMSE? **Show a table of the RMSE and chosen parameter values of the best fitted models for each species.** 
+Run NLS models for all 24 combinations of plot, input level, and crop type using purrr. For each species, which model had the lowest RMSE? **Show a table of the RMSE and chosen parameter values of the best fitted models for each species.**
 
-Finally, **filter to plot 1 and recreate Figure 7 of the paper.** Don't worry about adding confidence intervals on the data points. How does more fertilizer impact yield for all three grains? 
+Finally, **filter to plot 1 and recreate Figure 7 of the paper.** Don't worry about adding confidence intervals on the data points. How does more fertilizer impact yield for all three grains?
 
 Hints:
 
-- I would separate dataframes one of the filtered data and another of the model predictions with a vector of days from 141 to 306. Then create two figures for each input and join them with patchwork or cowplot.
+-   I would separate dataframes one of the filtered data and another of the model predictions with a vector of days from 141 to 306. Then create two figures for each input and join them with patchwork or cowplot.
 
-- Filter observations of predicted yield for maize when day of year is less than 263. Otherwise your graph is going to look weird.
+-   Filter observations of predicted yield for maize when day of year is less than 263. Otherwise your graph is going to look weird.
 
 ## Solution
 
@@ -57,7 +57,6 @@ sm_clean<-sm |>
   janitor::clean_names()
 
 ```
-
 
 ### Define Beta Function
 
@@ -97,8 +96,6 @@ sorg_nls<-nls(yield~beta_fcn(ymax,te,tm,doy),
            data=sorg,
            start=list(ymax=20,te=240,tm=200))
 ```
-
-
 
 ```{r}
 #| label: tbl-single-nls
@@ -145,7 +142,6 @@ rmse_df<-models |>
 
 ```
 
-
 ```{r}
 #| label: tbl-purrr
 #| tbl-cap: "NLS Coefficients on best models for each crop"
@@ -176,8 +172,6 @@ rmse_df |>
 
 
 ```
-
-
 
 ```{r}
 ## Unnest predictions from the data and clean maize data
@@ -216,8 +210,6 @@ low_plot<-un_df |>
 
 ```
 
-
-
 ```{r}
 #| label: fig-purrr-plot
 #| fig-cap: "PAnel 1 is low input, Panel B is high input blah blah"
@@ -225,4 +217,3 @@ low_plot<-un_df |>
 low_plot+hi_plot+plot_layout(guides = "collect",axis_titles = "collect")
 
 ```
-

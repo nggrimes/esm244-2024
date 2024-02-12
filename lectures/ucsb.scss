@@ -102,40 +102,6 @@ p.subtitle:after {
 	margin: 25px 0 25px;
 }
 
-// Section break slide
-hr,
-h1::after {
-	content: "";
-	display: block;
-	border: none;
-	background-color: $theme-gold;
-	color: $theme-gold;
-	height: 1px;
-	margin: 1em 10px 0 10px;
-}
-
-// Override h1 style for title slide (remove section break slide style)  Removing adds yellow line on title slide
-hr,
-h1.title::after {
-	content: "";
-	display: block;
-	border: none;
-	background-color: transparent !important;
-	color: transparent !important;
-	height: 0px;
-	margin: 0px !important;
-}
-
-// Custom class to allow for blank slides
-.empty h1::after, .empty h2 {
-    content: "";
-    display: none;
-    border: none;
-    // background-color: #eb811b;
-    // color: #eb811b;
-    height: 0px;
-    margin: 0 auto; //reset
-}
 
 h2::after.title {
 	margin: 10px 15px 35px 0;
@@ -214,4 +180,19 @@ h2::after.title {
     border-color: $theme-blue;
     color: $theme-bren;
     padding-left: 10%;
+  }
+  
+  //Slide themes
+  
+  .section-break {
+    font-size: 1em;
+    text-align: center;
+    background-color: $theme-gold;
+    padding-left: 100px;
+  
+  h1 {
+	  color: $theme-blue;
+	
+  }
+    
   }
